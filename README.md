@@ -1,0 +1,1 @@
+A WordPress plugin for adding custom Amazon Associates links into your posts.
