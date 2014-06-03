@@ -8,7 +8,7 @@ This plugin helps you to insert custom Amazon Associates referral image links in
 
 Once you've enabled it on a post, you will see your referral image link towards the top of your post, floated to the right.
 
-Please Note: You will need an Amazon Associates account to take advantage of this plugin. You can find out more here.
+**Please Note: You will need an Amazon Associates account to take advantage of this plugin. You can find out more here.**
 
 ## Getting Started:
 
@@ -16,7 +16,7 @@ Please Note: You will need an Amazon Associates account to take advantage of thi
 2. On your dashboard page you have the option of searching/browsing for a product. Find a product that you want to link to and click the yellow dropdown labelled 'Get Link'
 3. Inside that drop down you will have a referral link to the chosen product, which you will need for use in this plugin.
 4. Once you've pasted the link somewhere safe, note the product title and type of product it is (album/film/book/etc). These will all be used in the plugin also.
-5. Finally, you will need an image of the product that will display on your site. Please check the copyright of the image you are using before using it. I presume images taken from Amazon would be okay as it is their affiliate program but I am not 100% sure. Please check.
+5. Finally, you will need an image of the product that will display on your site. **Please check the copyright of the image you are using before using it. I presume images taken from Amazon would be okay as it is their affiliate program but I am not 100% sure. Please check.**
 6. Now you have two ways of attaching your referral image link to your post.
 ..* In the editor for that particular post. (Towards the bottom of the page)
 ..* On the 'Amazon Links' page of the plugin. (All of your published posts will be listed here for the quick adding of multiple image links)
