@@ -36,6 +36,8 @@ class AmazonAssociatesPosts {
 	private $plugin_name;
 	private $plugin_display_name;
 	private $options_name;
+	private $amazon_associates_link;
+	private $amazon_dashboard_link;
 
 
 
@@ -72,6 +74,8 @@ class AmazonAssociatesPosts {
 		$this->plugin_name	=	'amazon-associates-for-posts';		
 		$this->plugin_display_name	=	$this->_make_display_name($this->plugin_name);
 		$this->options_name	=	'dp_aap_options';
+		$this->amazon_associates_link	=	'https://affiliate-program.amazon.co.uk/';
+		$this->amazon_dashboard_link	=	'https://affiliate-program.amazon.co.uk/gp/associates/network/main.html';
 	}
 
 
@@ -81,13 +85,34 @@ class AmazonAssociatesPosts {
 	|-----------------------------
 	*/
 	public function _display_menu_page() {
-		echo "<div class='wrap'>";
-		echo "<h2>" . $this->plugin_display_name . "</h2>";
-		echo "<p>This plugin helps you to insert custom Amazon Assocaites image links into your post content.</p>";
-		echo "<p>It uses a different approach from pasting in complete advert widgets.</p>";
-		echo "<p>It separates out the elements of an amazon associates referer link and places it into your post content wrapped in semantic html.</p>";
-		echo "<p>By entering the Product Title, Referer Link, Product Type and uploading / attaching the product image it will insert to referal image link into you post.</p>";
-		echo "</div>";
+		?>
+		<div class='wrap'>
+		<h2><?php echo $this->plugin_display_name; ?></h2>
+		<p>Referrer image links are images that&#8202;&mdash;&#8202;when clicked&#8202;&mdash;&#8202;link to a chosen product on Amazon's website. You will then receive commission when people buy the product as a result of your website's link.</p>
+		<p>This plugin helps you to insert custom Amazon Associates referrer image links into your post content.</p>
+		<p>Once you've enabled it on a post, you will see your referrer image link towards the top of your post, floated to the right.</p>
+		<p><strong>Please Note: You will need an Amazon Associates account to take advantage of this plugin. You can find out more <a href='<?php echo $this->amazon_associates_link; ?>'>here</a>.</strong></p>
+		<h3>Getting Started:</h3>
+		<ol>
+			<li>Head over to the <a href='<?php echo $this->amazon_associates_link; ?>'>Amazon Associates site</a>. Register / Login and head to your <a href='<?php echo $this->amazon_dashboard_link; ?>'>dashboard</a>.</li>
+			<li>On your dashboard page you have the option of searching/browsing for a product. Find a product that you want to link to and click the yellow dropdown labelled 'Get Link'</li>
+			<li>Inside that drop down you will have a referrer link to the chosen product, which you will need for use in this plugin.</li>
+			<li>Once you've pasted the link somewhere safe, note the product title and type of product it is (album/film/book/etc). These will all be used in the plugin also.</li>
+			<li>Finally, you will need an image of the product that will display on your site. <strong>Please check the copyright of the image you are using before using it. I presume images taken from Amazon would be okay as it is their affiliate program but I am not 100% sure. Please check.</strong></li>
+			<li>Now you have two ways of attaching your referrer image link to your post.
+				<ul>
+					<li>In the editor for that particular post. (Towards the bottom of the page)</li>
+					<li>On the 'Amazon Links' page of the plugin. (All of your published posts will be listed here for the quick adding of multiple image links)</li>
+				</ul>
+			</li>
+			<li>Whichever way you choose, simply complete the fields with the relevant information and alter 'Disable' to 'Enable'.</li>
+			<li>To stop the image from being displayed on your site change the status back to 'Disabled'.</li>
+			<li>To remove the settings for a particular post, check the box labelled 'Clear From Post' and click the update button.</li>
+		</ol>
+		<h3>Notes:</h3>
+		<p>At the moment when showing an amazon image link on a post, if that post normally has a featured image on the single post page, it will not be displayed. Disabling the ....</p>
+		</div>
+		<?php
 	}
 
 	public function _display_submenu_page() {
@@ -147,7 +172,7 @@ class AmazonAssociatesPosts {
 			<table class='wp-list-table widefat'>
 				<thead>
 					<tr>
-						<th>Clear</th>
+						<th>Clear From Post</th>
 						<th>Post Title</th>
 						<th>Product Title</th>
 						<th>Referer Link</th>
@@ -197,7 +222,7 @@ class AmazonAssociatesPosts {
 			?>
 				<tfoot>
 					<tr>
-						<th>Clear</th>
+						<th>Clear From Post</th>
 						<th>Post Title</th>
 						<th>Product Title</th>
 						<th>Referer Link</th>
@@ -243,8 +268,8 @@ class AmazonAssociatesPosts {
 				$image_string	=	'<figure style="float:right;margin-left:2em;width:' . $img_array[1] . 'px;">';
 				$image_string	.=	'<a href="' . $post_meta['product_link'] . '">';
 				$image_string	.=	'<img style="display:block;margin:0 auto .5em;" src="' . $img_array[0] . '">';
-				$image_string	.=	'<figcaption>Buy ' . $post_meta['product_name'] . '</figcaption>';
 				$image_string	.=	'</a>';
+				$image_string	.=	'<figcaption>Buy ' . $post_meta['product_name'] . '</figcaption>';
 				$image_string	.=	'</figure>';
 				$the_content	=	$image_string . $the_content;
 			}
@@ -262,10 +287,9 @@ class AmazonAssociatesPosts {
 
 	public function _post_meta_boxes($post) {
 		$post_meta	=	get_post_meta($post->ID, $this->options_name, TRUE);
-		#$this->_dump($post_meta);
 		?>
 		<p>
-			<label for="<?php echo $this->options_name; ?>-remove_<?php echo $post->ID; ?>">Tick to Remove</label>
+			<label for="<?php echo $this->options_name; ?>-remove_<?php echo $post->ID; ?>">Clear From Post</label>
 			<input type='checkbox' name='<?php echo $this->options_name;?>[<?php echo $post->ID; ?>][remove]' id='<?php echo $this->options_name; ?>-remove_<?php echo $post->ID; ?>'>
 		</p>
 		<p>
@@ -315,7 +339,6 @@ class AmazonAssociatesPosts {
 	}
 
 	public function _save_meta_boxes($id) {
-			#$this->_dump($id);
 		if (isset($_POST[$this->options_name])) {
 			foreach ($_POST[$this->options_name] as $key => $value) {
 
