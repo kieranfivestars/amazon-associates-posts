@@ -130,7 +130,6 @@ class AmazonAssociatesPosts {
 				if (!empty($value['product_link'])) {
 					update_post_meta( $key, $this->options_name, $value);
 				}
-				// check for a delete fields flag to unattach fields from the post
 			}
 		}
 
@@ -145,7 +144,6 @@ class AmazonAssociatesPosts {
 		$total_pages = ceil(count($all_posts) / $per_page);
 		unset($all_posts);
 
-		// Get all posts and list them with empty amazon fields.
 		$args	=	array(
 			'post_type'	=>	'post',
 			'posts_per_page'	=>	$per_page,
@@ -176,7 +174,6 @@ class AmazonAssociatesPosts {
 						<th>Post Title</th>
 						<th>Product Title</th>
 						<th>Referer Link</th>
-						<th>Product Type</th>
 						<th>Choose New Image</th>
 						<th>Current Image</th>
 						<th>Status</th>
@@ -193,7 +190,6 @@ class AmazonAssociatesPosts {
 					<td class='post-title'><strong><?php echo $post->post_title; ?></strong></td>
 					<td><input type='text' name='<?php echo $this->options_name; ?>[<?php echo $post->ID; ?>][product_name]' value='<?php echo (empty($post_meta['product_name'])) ? '': $post_meta['product_name']; ?>' ></td>
 					<td><input type='text' name='<?php echo $this->options_name; ?>[<?php echo $post->ID; ?>][product_link]' value='<?php echo (empty($post_meta['product_link'])) ? '': $post_meta['product_link']; ?>'></td>
-					<td><input type='text' name='<?php echo $this->options_name; ?>[<?php echo $post->ID; ?>][product_type]' value='<?php echo (empty($post_meta['product_type'])) ? '': $post_meta['product_type']; ?>'></td>
 					<td><input type='file' style='vertical-align:top;' class='aap-image' name='<?php echo $this->options_name; ?>[<?php echo $post->ID; ?>][product_image]' id='<?php echo $this->options_name; ?>-product-image_button_<?php echo $post->ID; ?>' />
 					</td>
 					<td>
@@ -226,7 +222,6 @@ class AmazonAssociatesPosts {
 						<th>Post Title</th>
 						<th>Product Title</th>
 						<th>Referer Link</th>
-						<th>Product Type</th>
 						<th>Choose New Image</th>
 						<th>Current Image</th>
 						<th>Status</th>
@@ -237,9 +232,37 @@ class AmazonAssociatesPosts {
 			<input type='submit' value='Save AAP Settings' class='button-primary alignright'>
 			</form>
 			</div>
-			<?php include(__DIR__ . '/inc/javascript.php'); ?>
+			
 			<?php
 		}
+	}
+
+	/*
+	|-----------------------------
+	|	Shortcode Functions
+	|-----------------------------
+	*/
+	public function _amazon_assoc_cb($atts) {
+		global $post;
+		
+		$atts = shortcode_atts( array(
+		 	'float' => 'none'
+		), $atts );
+
+		if (is_single()) {
+			$post_meta	=	get_post_meta( $post->ID, $this->options_name, TRUE );
+			if ($post_meta && $post_meta['product_status']) {
+				$img_array	=	wp_get_attachment_image_src( $post_meta['product_image_id'], 'medium' );
+				$image_string	=	'<figure class="align-' . $atts['float'] . ' amazon-link-wrap">';
+				$image_string	.=	'<a href="' . $post_meta['product_link'] . '">';
+				$image_string	.=	'<img src="' . $img_array[0] . '">';
+				$image_string	.=	'</a>';
+				$image_string	.=	'<figcaption>Buy ' . $post_meta['product_name'] . ' from Amazon</figcaption>';
+				$image_string	.=	'</figure>';
+				$the_content	=	$image_string . $the_content;
+			}
+		}
+		return $the_content;
 	}
 
 
@@ -249,40 +272,16 @@ class AmazonAssociatesPosts {
 	|-----------------------------
 	*/
 	public function _create_menu_pages() {
-		//add_menu_page( $page_title, $menu_title, $capability, $menu_slug, $function, $icon_url, $position );
 		add_menu_page( $this->plugin_display_name, $this->_make_abbr($this->plugin_display_name) . ' Settings', 'manage_options', $this->plugin_name, array($this, '_display_menu_page'), '' );
 		add_submenu_page( $this->plugin_name, 'Amazon Links Settings', 'Amazon Links', 'manage_options', $this->plugin_name . '-links', array($this, '_display_submenu_page') );
 	}
 
 	public function _register_settings_and_fields() {
-		# Needed ?
 		register_setting($this->options_name, $this->options_name);
 	}
 
-	public function _insert_aap_image($the_content) {
-		global $post;
-		if (is_single()) {
-			$post_meta	=	get_post_meta( $post->ID, $this->options_name, TRUE );
-			if ($post_meta && $post_meta['product_status']) {
-				$img_array	=	wp_get_attachment_image_src( $post_meta['product_image_id'], 'medium' );
-				$image_string	=	'<figure style="float:right;margin-left:2em;width:' . $img_array[1] . 'px;">';
-				$image_string	.=	'<a href="' . $post_meta['product_link'] . '">';
-				$image_string	.=	'<img style="display:block;margin:0 auto .5em;" src="' . $img_array[0] . '">';
-				$image_string	.=	'</a>';
-				$image_string	.=	'<figcaption>Buy ' . $post_meta['product_name'] . '</figcaption>';
-				$image_string	.=	'</figure>';
-				$the_content	=	$image_string . $the_content;
-			}
-		}
-		return $the_content;
-	}
-
-	public function _test_attachment_filter($thumb) {
-		global $post;
-		$post_meta	=	get_post_meta( $post->ID, $this->options_name, TRUE );
-		if (is_single() && ( $post_meta && $post_meta['product_status'] ) )
-			return null;
-		return $thumb;
+	public function _register_shortcodes() {
+		add_shortcode('amazon_assoc', array($this, '_amazon_assoc_cb'));
 	}
 
 	public function _post_meta_boxes($post) {
@@ -315,10 +314,6 @@ class AmazonAssociatesPosts {
 			<input type='text' class='widefat' name='<?php echo $this->options_name; ?>[<?php echo $post->ID; ?>][product_link]' id='<?php echo $this->options_name; ?>-product-link-<?php echo $post->ID; ?>' value='<?php echo (empty($post_meta['product_link']))?'':$post_meta['product_link']; ?>'>
 		</p>
 		<p>
-			<label for="<?php echo $this->options_name; ?>-product-type-<?php echo $post->ID; ?>">Product Type</label>
-			<input type='text' class='widefat' name='<?php echo $this->options_name; ?>[<?php echo $post->ID; ?>][product_type]' id='<?php echo $this->options_name; ?>-product-type-<?php echo $post->ID; ?>' value='<?php echo (empty($post_meta['product_type']))? '': $post_meta['product_type']; ?>'>
-		</p>
-		<p>
 			<select type='text' name='<?php echo $this->options_name; ?>[<?php echo $post->ID; ?>][product_status]'><?php
 				if (empty($post_meta['product_status']) || $post_meta['product_status'] == '0') {
 					echo "<option value='0' selected>Disabled</option>";
@@ -329,12 +324,10 @@ class AmazonAssociatesPosts {
 				}
 			?></select>
 		</p>
-		<?php include(__DIR__ . '/inc/javascript.php'); ?>
 		<?php
 	}
 
 	public function _meta_boxes() {
-		// id, title, cb, page/post-type, priority, cb args
 		add_meta_box($this->plugin_name . '-name', $this->plugin_display_name, array($this, '_post_meta_boxes'), 'post');
 	}
 
@@ -354,6 +347,7 @@ class AmazonAssociatesPosts {
 
 	public function _load_wp_media_files() {
 		wp_enqueue_media();
+		wp_enqueue_script( 'dp_aap_script', plugin_dir_url( __FILE__ ) . 'inc/aap-script.js' );
 	}
 
 	public function __construct() {
@@ -363,21 +357,8 @@ class AmazonAssociatesPosts {
 		add_action('admin_init', array($this, '_register_settings_and_fields'));
 		add_action('add_meta_boxes', array($this, '_meta_boxes'));
 		add_action('save_post', array($this, '_save_meta_boxes'));
-		add_filter('the_content', array($this, '_insert_aap_image'));
-		add_filter('post_thumbnail_html', array($this, '_test_attachment_filter'));		
+		$this->_register_shortcodes();
 	}
 
 }
 $dpamazon = new AmazonAssociatesPosts();
-/*
-Functionality to add
-Admin: paginate posts
-
-choose size of advert
-choose position of the advert.
-disable / keep featured image when attaching a product
-
-Meta boxes in post admin pages with same data
-
-clean up the code a bit.
-*/
