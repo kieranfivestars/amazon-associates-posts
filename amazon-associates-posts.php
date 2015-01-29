@@ -254,11 +254,13 @@ class AmazonAssociatesPosts {
 			if ($post_meta && $post_meta['product_status']) {
 				$img_array	=	wp_get_attachment_image_src( $post_meta['product_image_id'], 'medium' );
 				$image_string	=	'<figure class="align-' . $atts['float'] . ' amazon-link-wrap">';
-				$image_string	.=	'<a href="' . $post_meta['product_link'] . '">';
+				$image_string	.=	'<a href="' . $post_meta['product_link'] . '" target="_blank">';
 				$image_string	.=	'<img src="' . $img_array[0] . '">';
 				$image_string	.=	'</a>';
+				$image_string	.=	'<a href="' . $post_meta['product_link'] . '"target="_blank">';
 				$image_string	.=	'<figcaption>Buy ' . $post_meta['product_name'] . ' from Amazon</figcaption>';
 				$image_string	.=	'</figure>';
+				$image_string	.=	'</a>';
 				$the_content	=	$image_string . $the_content;
 			}
 		}
